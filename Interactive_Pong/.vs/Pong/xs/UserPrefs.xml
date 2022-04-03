@@ -1,0 +1,21 @@
+﻿<Properties StartupConfiguration="{59972000-A102-93F3-E252-4AFE00D882C8}|">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/TCPTestServer.cs">
+    <Files>
+      <File FileName="Assets/Scripts/MainMenu.cs" Line="2" Column="35" />
+      <File FileName="Assets/Scripts/LightPaddle1.cs" Line="18" Column="9" />
+      <File FileName="Assets/Scripts/LightPaddle2.cs" Line="17" Column="9" />
+      <File FileName="Assets/Scripts/Paddle.cs" Line="6" Column="32" />
+      <File FileName="Assets/Scripts/TCPTestServer.cs" Line="58" Column="68" />
+      <File FileName="Assets/Scripts/GameManager.cs" Line="58" Column="6" />
+      <File FileName="Assets/Scripts/WinManager.cs" Line="3" Column="35" />
+      <File FileName="Assets/Scripts/ScoringZone.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="c0e69b1a-860a-4317-82e9-4545cdffc76b" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>
