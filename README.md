@@ -25,14 +25,14 @@ Or use the following command to record a video of all the camera feed
 ```
 python main.py --save_video True
 ```
-To see a list of possible commands:
+To see a list of possible commands
 ```
 python main.py --help
 ```
 
 3. A unity window for ping pong will automatically open up
 4. Follow the prompts for a quick callibration
-5. Finally, go ahead and click "play" in Ping Pong window
+5. Go ahead and click "play" in the Ping Pong window
 
 ## Acknowledgments
 Udp Communication code between Python and Unity was borrowed from Siliconifier's [Python-Unity-Socket-Communication](https://github.com/Siliconifier/Python-Unity-Socket-Communication)
