@@ -4,10 +4,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import os
+import argparse
 
 '''
 This programs uses UdpComms.py from Siliconifier's github repository: https://github.com/Siliconifier/Python-Unity-Socket-Communication
 '''
+
+#Arguments
+parser = argparse.ArgumentParser()
+parser.add_argument("--save_video", default = False, type = bool, help = "True or False to save video of all camera feed")
+parser.add_argument("--fps", default = 30, type = int, help = "Set FPS of all cameras")
+parser.add_argument("--width", default = 1280, type = int, help = "Set width for cameras")
+parser.add_argument("--height", default = 720, type = int, help = "Set height for cameras")
+args = parser.parse_args()
 
 #Initializes the pong game
 os.startfile("Interactive_Pong\Build\Pong.exe")
@@ -19,53 +28,58 @@ dataArray = [25, 25]
 final = "000000"
 
 #Video Start
-LeftCamera = cv.VideoCapture(0, cv.CAP_DSHOW)
-RightCamera = cv.VideoCapture(0, cv.CAP_DSHOW)
+LeftCamera = cv.VideoCapture(0)
+LeftCamera.set(cv.CAP_PROP_FPS, args.fps)
+LeftCamera.set(cv.CAP_PROP_FRAME_WIDTH, args.width)
+LeftCamera.set(cv.CAP_PROP_FRAME_HEIGHT, args.height)
+
+RightCamera = LeftCamera
+#RightCamera = cv.VideoCapture(1)
+RightCamera.set(cv.CAP_PROP_FPS, args.fps)
+RightCamera.set(cv.CAP_PROP_FRAME_WIDTH, args.width)
+RightCamera.set(cv.CAP_PROP_FRAME_HEIGHT, args.height)
 
 lower = 140
 upper = 255
 
-def bright_feed(capture, capturename):
+#Create necessary folders
+if not os.path.exists("media"):
+    os.makedirs("media")
+if not os.path.exists("media/videos"):
+    os.makedirs("media/videos")
+if not os.path.exists("media/callibration_photo"):
+    os.makedirs("media/callibration_photo")
+
+def callibration(capture, capturename, bright):
     #bright setup
-    print("Press S to save the bright image. Everyone should have their lights turned ON and faced towards the camera!")
-    #waiting loop for saved bright image
+    if bright:
+        print("Press S to save the bright image. Everyone should have their lights turned ON and faced towards the camera!")
+    if not bright:  
+        print("Press S to save the dark image. Everyone should have their lights turned OFF!")
+
+    #waiting loop for saved callibration image
     while True:
         isTrue, frame = capture.read()
         cam = cv.flip(frame, 1)
         Feed = calc_simple(cam)
         cv.imshow("Feed", Feed)
         if ( cv.waitKey(5) & 0xFF==ord("s") ):
-            cv.imwrite(("Interactive Design Project\Project\{}.jpg".format(capturename)), cam)
+            cv.imwrite(("media/callibration_photo/{}.jpg".format(capturename)), cam)
             break
 
     #saved bright image
-    bright = cv.imread("Interactive Design Project\Project\{}.jpg".format(capturename))
+    callibration_image = cv.imread("media/callibration_photo/{}.jpg".format(capturename))
     cv.destroyWindow("Feed")
-    cv.imshow("Bright", bright)
+    if bright: 
+        cv.imshow("Bright", callibration_image)
+    if not bright:
+        cv.imshow("Dark", callibration_image)
     time.sleep(0.5)
-    cv.destroyWindow("Bright")
-    return bright
-
-def dark_feed(capture, capturename):
-    #dark setup
-    print("Press S to save the dark image. Everyone should have their lights turned OFF!")
-    #waiting loop for saved dark image
-    while True:
-        isTrue, frame = capture.read()
-        cam = cv.flip(frame, 1)
-        Feed = calc_simple(cam)
-        cv.imshow("Feed", Feed)
-        if ( cv.waitKey(5) & 0xFF==ord("s") ):
-            cv.imwrite(("Interactive Design Project\Project\{}.jpg".format(capturename)), cam)
-            break
-
-    #saved dark image
-    dark = cv.imread("Interactive Design Project\Project\{}.jpg".format(capturename))
-    cv.destroyWindow("Feed")
-    cv.imshow("Dark", dark)
-    time.sleep(0.5)
-    cv.destroyWindow("Dark")
-    return dark
+    if bright:
+        cv.destroyWindow("Bright")
+    if not bright:
+        cv.destroyWindow("Dark")
+    return callibration_image
 
 def calc(img):
     blurred = cv.GaussianBlur(img, (3, 3), 0)
@@ -127,8 +141,6 @@ def setup(bright, dark):
     #print(DarkOrigin)
     realmaxval, maxval, minval = variable_assign(BrightOrigin, DarkOrigin) 
 
-
-
     return realmaxval, maxval, minval
 
 def feed_calc(originalval, minval, realmaxval):
@@ -145,13 +157,16 @@ def feed_calc(originalval, minval, realmaxval):
 
     return printed_value
 
-leftbright = bright_feed(LeftCamera, "Left Bright")
+#Bright Callibration Image
+leftbright = callibration(LeftCamera, "Left_Bright", True)
 cv.imshow("Left Bright", leftbright)
-rightbright = bright_feed(RightCamera, "Right Bright")
+rightbright = callibration(RightCamera, "Right_Bright", True)
 cv.imshow("Right Bright", rightbright)
-leftdark = dark_feed(LeftCamera, "Left Dark")
+
+#Dark Callibration Image
+leftdark = callibration(LeftCamera, "Left_Dark", False)
 cv.imshow("Left Dark", leftdark)
-rightdark = dark_feed(RightCamera, "Right Dark")
+rightdark = callibration(RightCamera, "Right_Dark", False)
 cv.imshow("Right Dark", rightdark)
 
 LeftRealMaxVal, LeftMaxVal, LeftMinVal = setup(leftbright, leftdark)
@@ -167,11 +182,15 @@ cv.destroyWindow("Right Bright")
 cv.destroyWindow("Left Dark")
 cv.destroyWindow("Right Dark")
 
+if args.save_video:
+    fourcc = cv.VideoWriter_fourcc('m', 'p', '4', 'v')
+    vid_number = os.listdir("media/videos/")
+    out = cv.VideoWriter(f"media/videos/recorded_video_{len(vid_number)}.mp4", fourcc, args.fps/2, (args.width * 2, args.height))
+
 #Video Loop
 while True:
-#Setup
     print("Updated Values:")
-#Left
+    #Left
     #Sets up camera feeds for analysis
     isTrue, frame = LeftCamera.read()
     LeftFeed = cv.flip(frame, 1)
@@ -182,7 +201,7 @@ while True:
     LeftOriginalValue = calc(LeftFeed)
     LeftValue = feed_calc(LeftOriginalValue, LeftMinVal, LeftRealMaxVal)
 
-#Right
+    #Right
     #Sets up camera feeds for analysis
     isTrue, frame = RightCamera.read()
     RightFeed = cv.flip(frame, 1)
@@ -193,7 +212,7 @@ while True:
     RightOriginalValue = calc(RightFeed)
     RightValue = feed_calc(RightOriginalValue, RightMinVal, RightRealMaxVal)
 
-#Send Stuff
+    #Send Stuff
     dataArray[0] = LeftValue
     dataArray[1] = RightValue
     print("Array:")
@@ -213,10 +232,14 @@ while True:
     if data != None: # if NEW data has been received since last ReadReceivedData function call
         print(data) # print new received data
 
-#How to Exit Loop
-    if ( cv.waitKey(5) & 0xFF==ord("d") ):
+    #How to Exit Loop
+    if ( cv.waitKey(5) & 0xFF==ord("q") ):
         break
     print("")
+
+    if args.save_video:
+        combined_feed = cv.hconcat([LeftFeed, RightFeed])
+        out.write(combined_feed)
 
 LeftCamera.release()
 RightCamera.release()
@@ -225,4 +248,6 @@ print("Starting Values")
 print("Left Values", LeftRealMaxVal, LeftMaxVal, LeftMinVal)
 print("Right Values", RightRealMaxVal, RightMaxVal, RightMinVal)
 
+if args.save_video:
+    out.release()
 cv.destroyAllWindows
