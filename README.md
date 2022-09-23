@@ -21,6 +21,15 @@ We were able to create an interactive game on this large of a scale with the use
 ```
 python main.py
 ```
+Or use the following command to record a video of all the camera feed
+```
+python main.py --save_video True
+```
+To see a list of possible commands:
+```
+python main.py --help
+```
+
 3. A unity window for ping pong will automatically open up
 4. Follow the prompts for a quick callibration
 5. Finally, go ahead and click "play" in Ping Pong window
