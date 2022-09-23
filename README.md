@@ -5,9 +5,8 @@ This repository is the first implementation of our interactive game (Ping-Pong i
 
 It would be very much appreciated if you tell us about how you used this project at vartanyildiz@gmail.com or vedicpatel@gmail.com
 
-<p align="center">
-<iframe width="560" height="315" src="https://www.youtube.com/embed/OcLmcevJgVQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-</p>
+Link to Video: https://www.youtube.com/watch?v=OcLmcevJgVQ
+[![IMAGE_ALT](https://img.youtube.com/vi/OcLmcevJgVQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=OcLmcevJgVQ)
 
 ## How it Works
 We were able to create an interactive game on this large of a scale with the use of smartphone flashlights and two cameras up on stage. In order for either of the sides to controll their respective paddle, they had to turn on their smartphone flashlights and point them towards the cameras on stage. One camera was positioned on the left while the other on the right and with the captured feed, our program calculated a brightness value between 0-100 of each side. The paddle in-game would then adjust according to the value. With a higher value, the paddle moves up and with a lower value it moves down. 
