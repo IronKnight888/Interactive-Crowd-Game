@@ -1,6 +1,8 @@
 # Interactive Crowd Game (Ping Pong)
 This repository is the first implementation of our interactive game (Ping-Pong in this case) for large audiences. The game was featured during an assembly at our school and it received a lot of good feedback. Over a 1,000 people participated in the game with two sides competing against each other: left and right. 
 
+A version with more frequent updates can be found at: https://github.com/artavasdes/Interactive-Crowd-Ping-Pong
+
 It would be very much appreciated if you tell us about how you used this project at vartanyildiz@gmail.com or vedicpatel@gmail.com
 
 Link to Video: https://www.youtube.com/watch?v=OcLmcevJgVQ
@@ -20,7 +22,7 @@ We were able to create an interactive game on this large of a scale with the use
 1. Open up command prompt and cd into the directory of your choice
 2. Clone this respository
 ```
-git clone https://github.com/artavasdes/Light-Ping-Pong
+git clone https://github.com/artavasdes/Interactive-Crowd-Ping-Pong
 ```
 3. Cd into the repository
 ```
