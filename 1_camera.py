@@ -16,6 +16,7 @@ parser.add_argument("--save_video", default = False, type = bool, help = "True o
 parser.add_argument("--fps", default = 30, type = int, help = "Set FPS of all cameras")
 parser.add_argument("--width", default = 1280, type = int, help = "Set width for cameras")
 parser.add_argument("--height", default = 720, type = int, help = "Set height for cameras")
+parser.add_argument("--light_range", default = [140, 255], nargs = "+", help = "List with 2 values between 0-255 (a low threshold and high threshold) on grayscale. Anything between these 2 values will be counted as light.")
 args = parser.parse_args()
 
 #Initializes the pong game
@@ -28,19 +29,14 @@ dataArray = [25, 25]
 final = "000000"
 
 #Video Start
-LeftCamera = cv.VideoCapture(0)
-LeftCamera.set(cv.CAP_PROP_FPS, args.fps)
-LeftCamera.set(cv.CAP_PROP_FRAME_WIDTH, args.width)
-LeftCamera.set(cv.CAP_PROP_FRAME_HEIGHT, args.height)
+camera = cv.VideoCapture(0, cv.CAP_DSHOW)
+camera.set(cv.CAP_PROP_FPS, args.fps)
+camera.set(cv.CAP_PROP_FRAME_WIDTH, args.width)
+camera.set(cv.CAP_PROP_FRAME_HEIGHT, args.height)
 
-RightCamera = LeftCamera
-#RightCamera = cv.VideoCapture(1)
-RightCamera.set(cv.CAP_PROP_FPS, args.fps)
-RightCamera.set(cv.CAP_PROP_FRAME_WIDTH, args.width)
-RightCamera.set(cv.CAP_PROP_FRAME_HEIGHT, args.height)
+lower = int(args.light_range[0])
+upper = int(args.light_range[1])
 
-lower = 140
-upper = 255
 
 #Create necessary folders
 if not os.path.exists("media"):
@@ -50,22 +46,32 @@ if not os.path.exists("media/videos"):
 if not os.path.exists("media/callibration_photo"):
     os.makedirs("media/callibration_photo")
 
-def callibration(capture, capturename, bright):
+def callibration(capture, capturename, bright, Left):
     #bright setup
     if bright:
         print("Press S to save the bright image. Everyone should have their lights turned ON and faced towards the camera!")
     if not bright:  
         print("Press S to save the dark image. Everyone should have their lights turned OFF!")
-
-    #waiting loop for saved callibration image
+    
     while True:
         isTrue, frame = capture.read()
+        frame = cv.resize(frame,(args.width, args.height), interpolation = cv.INTER_CUBIC) 
         cam = cv.flip(frame, 1)
-        Feed = calc_simple(cam)
+        width = cam.shape[1]
+        # Cut the image in half
+        width_cutoff = width // 2
+        if Left:
+            cut_feed = cam[:, :width_cutoff]
+        elif not Left:
+            cut_feed = cam[:, width_cutoff:]
+
+        # finish vertical devide image
+        Feed = calc_simple(cut_feed)
         cv.imshow("Feed", Feed)
+
         if ( cv.waitKey(5) & 0xFF==ord("s") ):
-            cv.imwrite(("media/callibration_photo/{}.jpg".format(capturename)), cam)
-            break
+            cv.imwrite(("media/callibration_photo/{}.jpg".format(capturename)), cut_feed)
+            break     
 
     #saved bright image
     callibration_image = cv.imread("media/callibration_photo/{}.jpg".format(capturename))
@@ -158,15 +164,15 @@ def feed_calc(originalval, minval, realmaxval):
     return printed_value
 
 #Bright Callibration Image
-leftbright = callibration(LeftCamera, "Left_Bright", True)
+leftbright = callibration(camera, "Left_Bright", True, True)
 cv.imshow("Left Bright", leftbright)
-rightbright = callibration(RightCamera, "Right_Bright", True)
+rightbright = callibration(camera, "Right_Bright", True, False)
 cv.imshow("Right Bright", rightbright)
 
 #Dark Callibration Image
-leftdark = callibration(LeftCamera, "Left_Dark", False)
+leftdark = callibration(camera, "Left_Dark", False, True)
 cv.imshow("Left Dark", leftdark)
-rightdark = callibration(RightCamera, "Right_Dark", False)
+rightdark = callibration(camera, "Right_Dark", False, False)
 cv.imshow("Right Dark", rightdark)
 
 LeftRealMaxVal, LeftMaxVal, LeftMinVal = setup(leftbright, leftdark)
@@ -177,34 +183,34 @@ print("Left Values", LeftRealMaxVal, LeftMaxVal, LeftMinVal)
 print("Right Values", RightRealMaxVal, RightMaxVal, RightMinVal)
 #Setup
 time.sleep(3)
-cv.destroyWindow("Left Bright")
-cv.destroyWindow("Right Bright")
-cv.destroyWindow("Left Dark")
-cv.destroyWindow("Right Dark")
+cv.destroyAllWindows()
 
 if args.save_video:
     fourcc = cv.VideoWriter_fourcc('m', 'p', '4', 'v')
     vid_number = os.listdir("media/videos/")
-    out = cv.VideoWriter(f"media/videos/recorded_video_{len(vid_number)}.mp4", fourcc, args.fps/2, (args.width * 2, args.height))
+    out = cv.VideoWriter(f"media/videos/recorded_video_{len(vid_number)}.mp4", fourcc, args.fps/2, (args.width, args.height))
 
 #Video Loop
 while True:
     print("Updated Values:")
-    #Left
+
     #Sets up camera feeds for analysis
-    isTrue, frame = LeftCamera.read()
-    LeftFeed = cv.flip(frame, 1)
+    isTrue, frame = camera.read()
+    frame = cv.resize(frame,(args.width, args.height), interpolation = cv.INTER_CUBIC) 
+    flipped = cv.flip(frame, 1)
+
+    width = flipped.shape[1]
+    # Cut the image in half
+    width_cutoff = width // 2
+    LeftFeed = flipped[:, :width_cutoff]
+    RightFeed = flipped[:, width_cutoff:]
+    # finish vertical devide image
 
     LeftDisplayFeed = calc_simple(LeftFeed)
     cv.imshow("Left Feed", LeftDisplayFeed)
 
     LeftOriginalValue = calc(LeftFeed)
     LeftValue = feed_calc(LeftOriginalValue, LeftMinVal, LeftRealMaxVal)
-
-    #Right
-    #Sets up camera feeds for analysis
-    isTrue, frame = RightCamera.read()
-    RightFeed = cv.flip(frame, 1)
 
     RightDisplayFeed = calc_simple(RightFeed)
     cv.imshow("Right Feed", RightDisplayFeed)
@@ -241,8 +247,7 @@ while True:
         combined_feed = cv.hconcat([LeftFeed, RightFeed])
         out.write(combined_feed)
 
-LeftCamera.release()
-RightCamera.release()
+camera.release()
 print("End")
 print("Starting Values")
 print("Left Values", LeftRealMaxVal, LeftMaxVal, LeftMinVal)

@@ -71,7 +71,7 @@ public class GameManager : MonoBehaviour
         p2_paddle.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
 
         yield return new WaitForSeconds(wait);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        SceneManager.LoadScene("WinScreen");
     }
 
     private void ResetRound()

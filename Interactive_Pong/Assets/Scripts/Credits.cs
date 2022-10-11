@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
+using System.Collections.Generic;
 
 public class Credits : MonoBehaviour
 {
@@ -15,6 +17,10 @@ public class Credits : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (Input.GetKey(KeyCode.Space)) {
+            SceneManager.LoadScene("Menu");
+        }
+
         rb.MovePosition(transform.position + Vector3.up * speed);
     }
 
@@ -22,13 +28,25 @@ public class Credits : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Wall"))
         {
-            print("Switching scenes");
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+            StartCoroutine(CreditsCoroutine());
         }
     }
+
+    IEnumerator CreditsCoroutine()
+    {
+        Debug.Log("Started Coroutine at timestamp : " + Time.time);
+
+        yield return new WaitForSeconds(2);
+
+        SceneManager.LoadScene("Menu");
+
+        Debug.Log("Finished Coroutine at timestamp : " + Time.time);
+    }
+
+
     public void StartMoving()
     {
-        speed = 2f;
+        speed = 0.03f;
         button.SetActive(false);
     }
 }

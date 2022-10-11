@@ -15,6 +15,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Pong.unity
     guid: 36cd021a084e144019dec034ead339e7
   - enabled: 1
-    path: Assets/Scenes/Win Screen.unity
+    path: Assets/Scenes/WinScreen.unity
     guid: 7cde0c5fcb5c24b47aa019d1a6173f5f
+  - enabled: 0
+    path: Assets/Scenes/NormalPong.unity
+    guid: fcba872997c350f429a19a2bdeae9cc9
   m_configObjects: {}

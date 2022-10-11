@@ -13,25 +13,38 @@ public class LightPaddle1 : Paddle
 
 
     private void FixedUpdate()
-    {
-        y = inputData.y1;
-        if (y > this.transform.position.y)
-        {
-            rb.AddForce(Vector2.up * this.speed);
-        }
-        else if (y < this.transform.position.y)
-        {
-            rb.AddForce(Vector2.down * this.speed);
-        }
+    {   
+        if (DebugScript.DebugMode != true){
+            y = inputData.y1;
+            if (y > this.transform.position.y)
+            {
+                rb.AddForce(Vector2.up * this.speed);
+            }
+            else if (y < this.transform.position.y)
+            {
+                rb.AddForce(Vector2.down * this.speed);
+            }
 
 
-        else if (this.transform.position.y > 0.0f)
-        {
-            rb.AddForce(Vector2.down * speed);
+            else if (this.transform.position.y > 0.0f)
+            {
+                rb.AddForce(Vector2.down * speed);
+            }
+            else if (this.transform.position.y < 0.0f)
+            {
+                rb.AddForce(Vector2.up * speed);
+            }
         }
-        else if (this.transform.position.y < 0.0f)
-        {
-            rb.AddForce(Vector2.up * speed);
+
+        else{
+            //Manual Control for debugging
+            if (Input.GetKey(KeyCode.W)) {
+                rb.AddForce(Vector2.up * this.speed);
+            }
+            else if (Input.GetKey(KeyCode.S)) {
+                rb.AddForce(Vector2.down * this.speed);
+            }
         }
+        
     }
 }

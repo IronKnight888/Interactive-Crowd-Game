@@ -17,6 +17,7 @@ public class WinManager : MonoBehaviour
     {
         scoreTracker.p1_score = 0;
         scoreTracker.p2_score = 0;
-        SceneManager.LoadScene(2);
+        SceneManager.LoadScene("Pong");
     }
+
 }
